@@ -33,7 +33,7 @@ public class Tee2 {
     static ArrayList<String> Block = new ArrayList();
 
     /**
-     * Groups the file into several for blocks
+     * Groups the file into several "for" blocks
      * @param file
      * @throws FileNotFoundException 
      */
@@ -112,36 +112,61 @@ public class Tee2 {
      */
     private static void calculateBounds(ArrayList token_array, String line, ArrayList<String> Block) {
         token_array.removeAll(new ArrayList(Arrays.asList("for", "int", "{")));
+        
+        for (int i = 0; i < token_array.size(); i++) {
+            System.out.print(token_array.get(i) + "; ");
+            patternMatcher((String) token_array.get(i));
+        }
+        System.out.println("\n-------------");
 
-//        for (int i = 0; i < token_array.size(); i++) {
-//            System.out.println("Token: " + token_array.get(i));
-//            patternMatcher((String) token_array.get(i));
-//        }
-
-        String tmp_ubvariable = getVariable(token_array.get(condition));
-        String lowerbound = getVariable(token_array.get(initialization));
+        String tmp_ubvariable = getValue(token_array.get(condition));
+        String tmp_lbvariable = getValue(token_array.get(initialization));
         
         // Swaps upperbound and lowerbound depending if the for loop starts at n and decrements 
-        if(lowerbound.matches("^[a-zA-Z]*$")){
-            String tmp = lowerbound;
-            lowerbound = tmp_ubvariable;
+        boolean reverse = false;
+        if(tmp_lbvariable.matches("^[a-zA-Z]*$")){
+            String tmp = tmp_lbvariable;
+            tmp_lbvariable = tmp_ubvariable;
             tmp_ubvariable = tmp;
+            reverse = true;
         }
         
         String upperbound = getUpperBound(token_array.get(increment), tmp_ubvariable); 
+        Integer lowerbound = Integer.valueOf(tmp_lbvariable) + ConditionOperator(token_array.get(condition),reverse); 
         
+        //can also alter upperbound
         System.out.println("Upperbound: " + upperbound); 
-        System.out.println("Lowerbound: " + lowerbound);
-        System.out.println("Terminator: " + token_array.get(2));
+        // change String.valueOf(lowerbound) to tmp_lbvariable if no need to add or subtract 1.
+        System.out.println("Lowerbound: " + getVariable(token_array.get(initialization)) + String.valueOf(lowerbound));
+        System.out.println("Iterator: " + token_array.get(2));
         
-        System.out.println("");
+        System.out.println("\n\n");
+    }
+    
+    
+    private static Integer ConditionOperator(Object tmp, boolean reverse){
+        ArrayList<String> t = patternMatcher((String) tmp);
+        String operator =  t.get(1);
+//        System.out.println(operator);
+        if(operator.equals("<")){
+            if (reverse)
+                return -1;
+            return 1;
+        }
+        else if (operator.equals(">")){
+            if (reverse)
+                return 1;
+            return -1;
+        }
+        
+        return 0;
     }
     
     /**
      * @param tmp
      * @return operators after the operand
      */
-    private static String getVariable(Object tmp){
+    private static String getValue(Object tmp){
         ArrayList chunks = patternMatcher((String) tmp);
         List t = chunks.subList(2, chunks.size());
         String ub = "";
@@ -152,6 +177,24 @@ public class Tee2 {
         String[] up = ub.split(",");
         return up[0];
     }
+    
+    /**
+     * 
+     * @param tmp
+     * @return operators before operand 
+     */
+    private static String getVariable(Object tmp){
+        ArrayList chunks = patternMatcher((String) tmp);
+        List t = chunks.subList(0,2);
+        String var = "";
+        for(int i=0; i<t.size(); i++){
+            var += t.get(i);
+        }
+        
+        return var;
+    }
+    
+    
     
     /**
      * Gets the upperbound of the for loop by checking the increment/decrement that leads to termination of loop. 
@@ -185,6 +228,7 @@ public class Tee2 {
         Matcher matcher = pattern.matcher(line);
         ArrayList chunks = new ArrayList();
         while (matcher.find()) {
+           //System.out.println(matcher.group(0));
            chunks.add(matcher.group(0));
         }
         return chunks;

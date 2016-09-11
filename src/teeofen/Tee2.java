@@ -31,6 +31,7 @@ public class Tee2 {
 
     static Stack blockChecker = new Stack();
     static ArrayList<String> Block = new ArrayList();
+    static ArrayList<Summation> Summation = new ArrayList();
 
     /**
      * Groups the file into several "for" blocks
@@ -55,6 +56,7 @@ public class Tee2 {
                 blockChecker.pop();
                 Block.add(line);
                 if (blockChecker.empty()) {
+                    //checkNestedLoop
                     calculateBlock(Block);
                     Block = new ArrayList();
                 }
@@ -69,20 +71,35 @@ public class Tee2 {
      * @param Block 
      */
     private static void calculateBlock(ArrayList<String> Block) {
+        Summation blockSummation = new Summation();
         int count = 0;
         for (String line : Block) {
+           
             StringTokenizer s = new StringTokenizer(line, "(;) ");
             ArrayList token_array = new ArrayList();
             while (s.hasMoreElements()) {
                 token_array.add(s.nextElement());
             }
             if (token_array.contains("for")) {
-                calculateBounds(token_array, line, Block);
+                ArrayList<String> block = calculateBounds(token_array, line, Block);
+                count+= calculateUnitsInFor(token_array);
+                blockSummation.setUpperbound(block.get(0));
+                blockSummation.setLowerbound(block.get(1));
+                blockSummation.setIterator(block.get(2));
+                blockSummation.addConstant(block.get(3));
             } else {
-                count += calculateUnitTime(token_array, line);
+                if(!line.equals("")){
+                    count += calculateUnitTime(token_array, line);
+                }
             }
-            //System.out.println("End of line!");
+           // System.out.println("End of line!");
         }
+        blockSummation.addUnits(count);
+        Summation.add(blockSummation);
+       // if(!blockSummation.getUpperbound().equals(""))
+            blockSummation.print();
+        System.out.println("\n\n");
+        blockSummation.calculateRunningTime();
         //System.out.println("End of block!\n");
     }
 
@@ -109,22 +126,22 @@ public class Tee2 {
     /**
      * This function is for lines containing a for loop. It calculates the upperbound, lowerbound,
      * and increment/decrement of the loop.
+     * 
+     * returns an arraylist of upperbound (0), lowerbound (1), iterator (2)
      */
-    private static void calculateBounds(ArrayList token_array, String line, ArrayList<String> Block) {
+    private static ArrayList calculateBounds(ArrayList token_array, String line, ArrayList<String> Block) {
+        ArrayList summation = new ArrayList();
         token_array.removeAll(new ArrayList(Arrays.asList("for", "int", "{")));
         
-        for (int i = 0; i < token_array.size(); i++) {
-            System.out.print(token_array.get(i) + "; ");
-            patternMatcher((String) token_array.get(i));
-        }
-        System.out.println("\n-------------");
 
         String tmp_ubvariable = getValue(token_array.get(condition));
+        //System.out.println(tmp_ubvariable);
         String tmp_lbvariable = getValue(token_array.get(initialization));
+        // System.out.println(tmp_lbvariable);
         
         // Swaps upperbound and lowerbound depending if the for loop starts at n and decrements 
         boolean reverse = false;
-        if(tmp_lbvariable.matches("^[a-zA-Z]*$")){
+        if(tmp_lbvariable.matches("[a-zA-Z]")){
             String tmp = tmp_lbvariable;
             tmp_lbvariable = tmp_ubvariable;
             tmp_ubvariable = tmp;
@@ -132,15 +149,19 @@ public class Tee2 {
         }
         
         String upperbound = getUpperBound(token_array.get(increment), tmp_ubvariable); 
-        Integer lowerbound = Integer.valueOf(tmp_lbvariable) + ConditionOperator(token_array.get(condition),reverse); 
+        String lowerbound;
+        Integer x = ConditionOperator(token_array.get(condition),reverse);
+        if(x >= 0)
+            lowerbound = tmp_lbvariable + " + " + String.valueOf(x);
+        else
+            lowerbound = tmp_lbvariable + String.valueOf(x);
         
-        //can also alter upperbound
-        System.out.println("Upperbound: " + upperbound); 
-        // change String.valueOf(lowerbound) to tmp_lbvariable if no need to add or subtract 1.
-        System.out.println("Lowerbound: " + getVariable(token_array.get(initialization)) + String.valueOf(lowerbound));
-        System.out.println("Iterator: " + token_array.get(2));
+        summation.add(upperbound);
+        summation.add(String.valueOf(lowerbound));
+        summation.add(token_array.get(2));
+        summation.add(String.valueOf(calculateConstant(token_array)));
         
-        System.out.println("\n\n");
+        return summation;
     }
     
     /**
@@ -248,19 +269,48 @@ public class Tee2 {
      * @param line
      * @return 
      */
-    private static int calculateUnitTime(ArrayList token_array, String line) {
-        String regex = "+"; //add regex for all operators here
-        for (Object tmp : token_array) {
-            //System.out.println("Token:" + tmp);
-//            Pattern pattern = Pattern.compile(regex);
-//            Matcher matcher = pattern.matcher(regex);
-//            
-            int count = 0;
-//            while (matcher.find())
-//                count++;
+    private static int calculateUnitTime(ArrayList<String> token_array, String line) {
+        //System.out.println(line);
+        
+        /*First pattern matcher checks operations in each line. However, it sees negative 
+        sign as an operation. The 2nd pattern matcher removes it from the count */
+        
+        Pattern pattern = Pattern.compile("[-+*/=]+|[<>=]+|[%]");
+        Matcher matcher = pattern.matcher(line);
+     
+        int count = 0;
+        while (matcher.find())
+              count++;
+        
+
+        Pattern p = Pattern.compile("= -[0-9]{0,10}");
+        Matcher match = p.matcher(line);
+        while (match.find())
+            count--;
+        
+       
+        return count;
+    }
+
+    /**
+     * Counts the units that are not part of loop 
+     * @param line 
+     */
+    private static int calculateConstant(ArrayList token_array) {
+        int count = 0;
+        for(int i = 0; i<token_array.size()-1; i++){
+            String tmp =  (String) token_array.get(i);
+            count += calculateUnitTime(token_array, tmp);
         }
-        //System.out.println("");
-        return 0;
+        return count;
     }
     
+    private static int calculateUnitsInFor(ArrayList token_array) {
+        int count = 0;
+        for(int i = 1; i<token_array.size(); i++){
+            String tmp =  (String) token_array.get(i);
+            count += calculateUnitTime(token_array, tmp);
+        }
+        return count;
+    }
 }

@@ -143,7 +143,14 @@ public class Tee2 {
         System.out.println("\n\n");
     }
     
-    
+    /**
+     * Adds/Subtracts value to lowerbound depending on the condition operator
+     * of the for loop. Reverse means loop starts at n and decrements.  
+     * 
+     * @param tmp
+     * @param reverse
+     * @return 
+     */
     private static Integer ConditionOperator(Object tmp, boolean reverse){
         ArrayList<String> t = patternMatcher((String) tmp);
         String operator =  t.get(1);

@@ -149,8 +149,16 @@ public class Tee2 {
             reverse = true;
         }
         
+        
+        if(tmp_lbvariable.matches("[0-9]") && Integer.valueOf(tmp_lbvariable) > 1){
+            int var = Integer.valueOf(tmp_lbvariable) - 1;
+            tmp_lbvariable= "1";
+            tmp_ubvariable += "+" + var;
+        }
+        
         String upperbound = getUpperBound(token_array.get(increment), tmp_ubvariable); 
         String lowerbound;
+        
         Integer x = ConditionOperator(token_array.get(condition),reverse);
         if(x >= 0)
             lowerbound = tmp_lbvariable + " + " + String.valueOf(x);
@@ -176,7 +184,7 @@ public class Tee2 {
     private static Integer ConditionOperator(Object tmp, boolean reverse){
         ArrayList<String> t = patternMatcher((String) tmp);
         String operator =  t.get(1);
-//        System.out.println(operator);
+        System.out.println(operator);
         if(operator.equals("<")){
             if (reverse)
                 return -1;
@@ -242,7 +250,7 @@ public class Tee2 {
             return var + "/" + chunks.get(2);
         }
         else {
-            return "log " + var + " base " +  chunks.get(2);
+            return "log" + chunks.get(2) + " " + var;
         }
         
     }

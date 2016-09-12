@@ -96,10 +96,11 @@ public class Tee2 {
         }
         blockSummation.addUnits(count);
         Summation.add(blockSummation);
-       // if(!blockSummation.getUpperbound().equals(""))
+        if(!blockSummation.getUpperbound().equals("")){
             blockSummation.print();
-        System.out.println("\n\n");
-        blockSummation.calculateRunningTime();
+            blockSummation.calculateRunningTime();
+            System.out.println("");
+        }
         //System.out.println("End of block!\n");
     }
 
@@ -141,7 +142,7 @@ public class Tee2 {
         
         // Swaps upperbound and lowerbound depending if the for loop starts at n and decrements 
         boolean reverse = false;
-        if(tmp_lbvariable.matches("[a-zA-Z]")){
+        if(tmp_lbvariable.matches("[a-zA-Z]") || tmp_lbvariable.matches("([-+]?[a-zA-Z]*\\.?[a-zA-Z]+[\\/\\+\\-\\*])+([-+]?[0-9]*\\.?[0-9]+)")){
             String tmp = tmp_lbvariable;
             tmp_lbvariable = tmp_ubvariable;
             tmp_ubvariable = tmp;
@@ -272,8 +273,8 @@ public class Tee2 {
     private static int calculateUnitTime(ArrayList<String> token_array, String line) {
         //System.out.println(line);
         
-        /*First pattern matcher checks operations in each line. However, it sees negative 
-        sign as an operation. The 2nd pattern matcher removes it from the count */
+        /* First pattern matcher checks operations in each line. However, it sees negative 
+        sign as an operation. The 2nd pattern matcher removes it from the count. */
         
         Pattern pattern = Pattern.compile("[-+*/=]+|[<>=]+|[%]");
         Matcher matcher = pattern.matcher(line);

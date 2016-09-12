@@ -99,74 +99,25 @@ public class Summation {
     }
     
     public void calculateRunningTime(){
-        if(!lowerbound.equals("")){
-            lowerbound = tokenize(lowerbound);
-        }
-        
-            
+//        if(!lowerbound.equals("")){
+//            lowerbound = evaluate(lowerbound);
+//        }
+        String eq = units + "{" + "(" + upperbound + ")" + "-" + "("+lowerbound+ ")"+ "+" + "1" + "}" + "+"+ constant;
+        System.out.println(eq);
     }
     
-    public String tokenize(String input){
+    
+    public String evaluate(String input){
         Stack<String> st = new Stack();
+        String token = new String();
         int value = 0;
         StringTokenizer tokenizer = new StringTokenizer(input);
         while (tokenizer.hasMoreElements()) {
             String tmp = (String) tokenizer.nextElement();
             st.push(tmp);
         }
-        while(st.size()>3 || !st.empty()){
-            if(st.peek().equals("+")) {
-                st.pop();
-                if(!st.peek().matches("[a-zA-Z]")){
-                    value += Integer.valueOf(st.pop());
-                }
-                else{
-                    st.push("+");
-                }
-            }
-            else if(st.peek().equals("-"))  {
-                st.pop();
-                if(!st.peek().matches("[a-zA-Z]")){
-                    value -= Integer.valueOf(st.pop());
-                }
-                else{
-                    st.push("-");
-                }
-            }
-            else if(st.peek().equals("*"))  {
-                st.pop();
-                if(!st.peek().matches("[a-zA-Z]")){
-                    value *= Integer.valueOf(st.pop());
-                }
-                else{
-                    st.push("*");
-                }
-            }
-            else if(st.peek().equals("/"))  {
-                st.pop();
-                if(!st.peek().matches("[a-zA-Z]")){
-                    value /= Integer.valueOf(st.pop());
-                }
-                else{
-                    st.push("/");
-                }
-            }
-            else {
-                if(!st.peek().matches("[a-zA-Z]")){
-                    value = Integer.valueOf(st.pop());
-                }
-                else {
-                    
-                }
-            }
-        }
-        st.push(String.valueOf(value));
         
-        String tokenized = "";
-        for(int i = 0; i<st.size(); i++){
-            tokenized += st.get(i);
-        }
-        return st.toString();
+        return token;
     }
     
     public void print(){

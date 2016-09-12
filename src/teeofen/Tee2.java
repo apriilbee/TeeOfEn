@@ -136,9 +136,8 @@ public class Tee2 {
         
 
         String tmp_ubvariable = getValue(token_array.get(condition));
-        //System.out.println(tmp_ubvariable);
         String tmp_lbvariable = getValue(token_array.get(initialization));
-        // System.out.println(tmp_lbvariable);
+        String iter = getValue(token_array.get(increment));
         
         // Swaps upperbound and lowerbound depending if the for loop starts at n and decrements 
         boolean reverse = false;
@@ -149,21 +148,22 @@ public class Tee2 {
             reverse = true;
         }
         
-        
+        //iterator - assignment
         if(tmp_lbvariable.matches("[0-9]") && Integer.valueOf(tmp_lbvariable) > 1){
-            int var = Integer.valueOf(tmp_lbvariable) - 1;
+            int var = Integer.valueOf(iter) - Integer.valueOf(tmp_lbvariable);
             tmp_lbvariable= "1";
-            tmp_ubvariable += "+" + var;
+            if(var>0)
+                tmp_ubvariable += "+" + var;
         }
         
         String upperbound = getUpperBound(token_array.get(increment), tmp_ubvariable); 
         String lowerbound;
         
         Integer x = ConditionOperator(token_array.get(condition),reverse);
-        if(x >= 0)
-            lowerbound = tmp_lbvariable + " + " + String.valueOf(x);
+        if(x > 0)
+            lowerbound = String.valueOf(Integer.valueOf(tmp_lbvariable) + x);
         else
-            lowerbound = tmp_lbvariable + String.valueOf(x);
+            lowerbound = tmp_lbvariable;
         
         summation.add(upperbound);
         summation.add(String.valueOf(lowerbound));
@@ -184,7 +184,6 @@ public class Tee2 {
     private static Integer ConditionOperator(Object tmp, boolean reverse){
         ArrayList<String> t = patternMatcher((String) tmp);
         String operator =  t.get(1);
-        System.out.println(operator);
         if(operator.equals("<")){
             if (reverse)
                 return -1;

@@ -102,9 +102,16 @@ public class Summation {
     
     public void calculateRunningTime(){
         String eq = units + "*" + "(" + "(" + upperbound + ")" + "-" + lowerbound + "+" + "1" + ")" + "+"+ constant;
-        Expression ub = new Expression(upperbound);
         System.out.println(eq);
         
+        Expression ub = new Expression(upperbound);
+        Expression lb = new Expression(lowerbound);
+        Expression con = new Expression(String.valueOf(constant));
+        Expression un = new Expression(String.valueOf(units));
+        Expression one = new Expression("1");
+        
+        Expression x = new Expression();
+        x.addExpressions(x.subtractExpressions(ub, lb),one).display();
     }
     
     public void print(){

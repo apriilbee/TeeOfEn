@@ -5,6 +5,8 @@
  */
 package teeofen;
 
+import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
@@ -99,25 +101,10 @@ public class Summation {
     }
     
     public void calculateRunningTime(){
-//        if(!lowerbound.equals("")){
-//            lowerbound = evaluate(lowerbound);
-//        }
-        String eq = units + "{" + "(" + upperbound + ")" + "-" + "("+lowerbound+ ")"+ "+" + "1" + "}" + "+"+ constant;
+        String eq = units + "*" + "(" + "(" + upperbound + ")" + "-" + lowerbound + "+" + "1" + ")" + "+"+ constant;
+        Expression ub = new Expression(upperbound);
         System.out.println(eq);
-    }
-    
-    
-    public String evaluate(String input){
-        Stack<String> st = new Stack();
-        String token = new String();
-        int value = 0;
-        StringTokenizer tokenizer = new StringTokenizer(input);
-        while (tokenizer.hasMoreElements()) {
-            String tmp = (String) tokenizer.nextElement();
-            st.push(tmp);
-        }
         
-        return token;
     }
     
     public void print(){
@@ -127,5 +114,7 @@ public class Summation {
         System.out.println("Units:" + units);
         System.out.println("Constant:" + constant);
     }
+
    
+
 }

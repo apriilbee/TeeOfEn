@@ -74,14 +74,33 @@ public class Tee2 {
         Summation blockSummation = new Summation();
         int count = 0;
         for (String line : Block) {
-           
             StringTokenizer s = new StringTokenizer(line, "(;) ");
+            StringBuilder sb = new StringBuilder();
+            
+            if(line.contains("for")){
+                for(int i=0; i<line.length()-1;i++){
+                    if(line.charAt(i) == ' '){
+                        if(String.valueOf(line.charAt(i-1)).matches("[+-/*=<>]") || String.valueOf(line.charAt(i+1)).matches("[+-/*=<>]")){}
+                        else
+                            sb.append(line.charAt(i));
+                            
+                    }
+                    else{
+                        sb.append(line.charAt(i));
+                    }
+                }
+                s = new StringTokenizer(sb.toString(), "(;) ");
+                System.out.println("sb:" + sb);
+
+            }
+            
             ArrayList token_array = new ArrayList();
             while (s.hasMoreElements()) {
-                token_array.add(s.nextElement());
+                Object tmp = s.nextElement();
+                token_array.add(tmp);
             }
             if (token_array.contains("for")) {
-                ArrayList<String> block = calculateBounds(token_array, line, Block);
+                ArrayList<String> block = calculateBounds(token_array, sb.toString(), Block);
                 count+= calculateUnitsInFor(token_array);
                 blockSummation.setUpperbound(block.get(0));
                 blockSummation.setLowerbound(block.get(1));
@@ -134,11 +153,13 @@ public class Tee2 {
         ArrayList summation = new ArrayList();
         token_array.removeAll(new ArrayList(Arrays.asList("for", "int", "{")));
         
+//        for(int i=0; i<token_array.size();i++){
+//            System.out.println(token_array.get(i));
+//        }
 
         String tmp_ubvariable = getValue(token_array.get(condition));
         String tmp_lbvariable = getValue(token_array.get(initialization));
         String iter = getValue(token_array.get(increment));
-        
         // Swaps upperbound and lowerbound depending if the for loop starts at n and decrements 
         boolean reverse = false;
         if(tmp_lbvariable.matches("[a-zA-Z]") || tmp_lbvariable.matches("([-+]?[a-zA-Z]*\\.?[a-zA-Z]+[\\/\\+\\-\\*])+([-+]?[0-9]*\\.?[0-9]+)")){
@@ -149,11 +170,13 @@ public class Tee2 {
         }
         
         //iterator - assignment
-        if(tmp_lbvariable.matches("[0-9]") && Integer.valueOf(tmp_lbvariable) > 1){
-            int var = Integer.valueOf(iter) - Integer.valueOf(tmp_lbvariable);
-            tmp_lbvariable= "1";
-            if(var>0)
-                tmp_ubvariable += "+" + var;
+        if(tmp_lbvariable.matches("[0-9]") && iter!=""){
+            if(Integer.valueOf(tmp_lbvariable) > 1){
+                int var = Integer.valueOf(iter) - Integer.valueOf(tmp_lbvariable);
+                tmp_lbvariable= "1";
+                if(var>0)
+                    tmp_ubvariable += "+" + var;
+            }
         }
         
         String upperbound = getUpperBound(token_array.get(increment), tmp_ubvariable); 
@@ -246,7 +269,7 @@ public class Tee2 {
         }
         
         else if(chunks.contains("+=") || chunks.contains("-=")){
-            return var + "/" + chunks.get(2);
+            return var + " /" + chunks.get(2);
         }
         else {
             return "log" + chunks.get(2) + " " + var;

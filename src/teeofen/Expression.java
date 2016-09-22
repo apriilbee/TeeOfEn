@@ -7,6 +7,7 @@ package teeofen;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -25,12 +26,22 @@ public class Expression {
             terms.add(exp);
         }
         else{
-            if(!exp.contains("^")){
+            if(!exp.contains("^") && !exp.contains("log")){
                 terms.add(exp);
                 terms.add("0");
             }
             else {
-               //in case term is raised to power,
+                ArrayList a = new ArrayList();
+                StringTokenizer s = new StringTokenizer(exp, "+");
+                while(s.hasMoreElements()){
+                   a.add(s.nextElement());
+                }
+                for(int i=0;i<a.size();i++){
+                   terms.add(a.get(i));
+                }
+                if(a.size()==1){
+                    terms.add("0");
+                }
             }
            
         }
@@ -38,9 +49,17 @@ public class Expression {
     
     public void display(){
         ArrayList tmp = (ArrayList) terms.clone();
-        //Collections.reverse(tmp);
+       // Collections.reverse(tmp);
         for(int i=0; i<tmp.size(); i++){
-            System.out.print(tmp.get(i) + " ");
+            if(isNumeric(String.valueOf(tmp.get(i)))){
+                if(Integer.valueOf(String.valueOf(tmp.get(i))) > 0 && tmp.size()>1)
+                    System.out.print("+" + tmp.get(i));
+                else
+                    System.out.print(tmp.get(i) + " ");
+            }
+            else{
+                System.out.print(tmp.get(i) + " ");
+            }
         }
         System.out.println("");
     }
@@ -179,6 +198,102 @@ public class Expression {
         ret.terms = (ArrayList<Object>) tmp.clone();
         return ret;
     }
+       
+    public Expression multiplyExpressions(Expression e1, Expression e2){
+        Expression ret = new Expression();
+        //check sa if reverse or dili ang both exps i-print lungs laters
+        // n*n -> move both possition + 1 or -1 (pos 1+1 -> 2 so n should be at pos 2 para n^2)
+        /// n*6 -> concatenate nlungs -> 6n  (pos 1+0 -> 1 so 6n should be at pos 1)
+        /// 4*6 -> multiply lungs (both pos 0, so pos 0 rapd ila product)
+        // 2n*3n -> 6n, multiply ang constants kilid nila, pos 1 + pos 1 -> pos 2
+        // n/3 * 2 -> 2n/3, check if 2 is divisible by 3 
+        
+        ArrayList prod = new ArrayList();
+        ArrayList re1 = (ArrayList) e1.terms.clone();
+        ArrayList re2 = (ArrayList) e2.terms.clone();
+        Collections.reverse(re1);
+        Collections.reverse(re2);
+
+        
+        for(int i=0; i<re1.size(); i++){
+            for(int j=0; j<re2.size(); j++){
+                Object ans = "";
+                int pos = i+j;
+                Object op1 = re1.get(i);
+                Object op2 = re2.get(j);
+                // start of something
+                if(isNumeric(String.valueOf(op1)) && isNumeric(String.valueOf(op2))){
+                    Integer a = Integer.valueOf(String.valueOf(op1)) * Integer.valueOf(String.valueOf(op2));
+                    ans = (Object)a;
+                }
+                else {
+                    if(!isNumeric(String.valueOf(op1)) && isNumeric(String.valueOf(op2))){
+                        String con = String.valueOf(op1).replaceAll("[^0-9.]", "");
+                        if(con.isEmpty()){
+                           String var = String.valueOf(op2);
+                           var = var.concat(String.valueOf(op1));
+                           ans = (Object)var;
+                        }
+                        else{
+                          if(!String.valueOf(op1).contains("log")){
+                            String s = String.valueOf(op1).replaceAll("[^a-zA-Z.]","");    
+                            Integer tmp_i = Integer.valueOf(String.valueOf(op2)) * Integer.valueOf(con);
+                            String var = String.valueOf(tmp_i);
+                            var = var.concat(s);
+                            ans = (Object)var;
+                          }
+                          else{
+                            String var = String.valueOf(op2) + " ";
+                            var = var.concat(String.valueOf(op1));
+                            ans = (Object)var;
+                          }
+                        }
+                    }
+                    else if(isNumeric(String.valueOf(op1)) && !isNumeric(String.valueOf(op2))){
+                        String con = String.valueOf(op2).replaceAll("[^0-9.]", "");
+                        //3 * n
+                        if(con.isEmpty()){
+                           String var = String.valueOf(op1);
+                           var = var.concat(String.valueOf(op2));
+                           ans = (Object)var;
+                        }
+                        // 3 * 6n
+                        else{
+                          if(!String.valueOf(op2).contains("log") && !String.valueOf(op2).contains("/")){
+                            String s = String.valueOf(op2).replaceAll("[^a-zA-Z.]","");    
+                            Integer tmp_i = Integer.valueOf(String.valueOf(op1)) * Integer.valueOf(con);
+                            String var = String.valueOf(tmp_i);
+                            var = var.concat(s);
+                            ans = (Object)var;
+                          }
+                          else{
+                            String var = String.valueOf(op1) + " ";
+                            var = var.concat(String.valueOf(op2));
+                            ans = (Object)var;
+                          }
+                        }
+                    }
+                    else if(!isNumeric(String.valueOf(op1)) && !isNumeric(String.valueOf(op2))){
+
+                    }
+                }
+                
+                //end of something
+                try {
+                    prod.add(pos, ans );
+                } catch (Exception e){
+                    for(int k=0; i<prod.size(); k++){
+                        prod.add("0");
+                    }
+                    prod.set(pos, ans);
+                }
+            }
+        }
+        
+        Collections.reverse(prod);
+        ret.terms = prod; 
+        return ret;
+    }
     
     public static boolean isNumeric(String str)  {  
         try  {  
@@ -190,3 +305,8 @@ public class Expression {
         return true;  
     }
 }
+
+// multiplyExpressions /
+// nested
+// logarithmic  /
+// power

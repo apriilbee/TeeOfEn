@@ -269,7 +269,7 @@ public class Tee2 {
         }
         
         else if(chunks.contains("+=") || chunks.contains("-=")){
-            return var + " /" + chunks.get(2);
+            return var + "/" + chunks.get(2);
         }
         else {
             return "log" + chunks.get(2) + " " + var;

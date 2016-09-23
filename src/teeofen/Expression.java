@@ -6,6 +6,7 @@
 package teeofen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
@@ -49,17 +50,41 @@ public class Expression {
     
     public void display(){
         ArrayList tmp = (ArrayList) terms.clone();
-       // Collections.reverse(tmp);
+        ArrayList tmp2 = new ArrayList();
+        Collections.reverse(tmp);
         for(int i=0; i<tmp.size(); i++){
             if(isNumeric(String.valueOf(tmp.get(i)))){
-                if(Integer.valueOf(String.valueOf(tmp.get(i))) > 0 && tmp.size()>1)
-                    System.out.print("+" + tmp.get(i));
-                else
-                    System.out.print(tmp.get(i) + " ");
+                if(Integer.valueOf(String.valueOf(tmp.get(i))) > 0 && tmp.size()>1){
+                   // System.out.print("+" + tmp.get(i));
+                   tmp2.add("+" + tmp.get(i));
+                }
+                else if (Integer.valueOf(String.valueOf(tmp.get(i))) == 0 ) {
+                    
+                }
+                else{
+                    tmp2.add(tmp.get(i) + " ");
+                    //System.out.print(tmp.get(i) + " ");
+                }
             }
             else{
-                System.out.print(tmp.get(i) + " ");
+                if (String.valueOf(tmp.get(i)).matches("^[0][a-zA-Z]")){
+                    
+                }
+                else 
+                    if(i > 1){
+                       // System.out.print(tmp.get(i) + "^" + i + " ");
+                        System.out.println(tmp.get(i));
+                       tmp2.add(tmp.get(i) + "^" + i + " ");
+                    }
+                    else{
+                        tmp2.add(tmp.get(i) + " ");
+                       // System.out.print(tmp.get(i) + " ");
+                    }
             }
+        }
+        Collections.reverse(tmp2);
+        for(int i=0; i<tmp2.size(); i++){
+            System.out.print(tmp2.get(i));
         }
         System.out.println("");
     }
@@ -274,13 +299,49 @@ public class Expression {
                         }
                     }
                     else if(!isNumeric(String.valueOf(op1)) && !isNumeric(String.valueOf(op2))){
-
+                        String con1 = String.valueOf(op1).replaceAll("[^0-9.]", "");
+                        String con2 = String.valueOf(op2).replaceAll("[^0-9.]", "");
+                        String var = String.valueOf(op2).replaceAll("[^a-zA-Z.]","");
+                        
+                        //n*n
+                        if(con1.isEmpty() && con2.isEmpty()){
+                           ans = (Object)var;
+                        }
+                        
+                        //n*3n
+                        else if(con1.isEmpty() && !con2.isEmpty()){
+                            ans = op2;
+                        }
+                        else if(!con1.isEmpty() && con2.isEmpty()){
+                            ans = op1;
+                        }
+                        else{
+                            if(String.valueOf(op2).contains("/")){
+                                
+                            }
+                            else if(String.valueOf(op2).contains("/")){
+                                
+                            }
+                        }
+                          
                     }
                 }
                 
                 //end of something
                 try {
-                    prod.add(pos, ans );
+                    if(prod.size() >= pos){
+                        try{
+                            Object[] tmp = prod.toArray();
+                            if(tmp[pos]!="0"){
+                                Expression et = addExpressions(new Expression(String.valueOf(prod.get(i))), new Expression(String.valueOf(ans)));
+                                Collections.reverse(et.terms);
+                                ans = et.terms.get(pos);
+                                prod.set(pos, ans);
+                            }
+                        } catch (Exception e) {
+                            prod.add(pos, ans );
+                        }
+                    }
                 } catch (Exception e){
                     for(int k=0; i<prod.size(); k++){
                         prod.add("0");

@@ -57,6 +57,13 @@ public class Expression {
                 for(int i=0;i<a.size();i++){
                    terms.add(a.get(i));
                 } 
+                if(exp.contains("/")){
+                    String denom = exp.substring(exp.indexOf("/")+1,exp.length());
+                    for(int i=0; i<terms.size()-1; i++){
+                       String tmp =   String.valueOf(terms.get(i)).concat("/" + denom);
+                       terms.set(i, tmp);
+                    }
+                }
             }
             else {
                 ArrayList a = new ArrayList();
@@ -348,7 +355,7 @@ public class Expression {
                                     ans = (Object) mult + "/" + denom;
                                 else
                                     ans = mult/denominator;
-                                System.out.println(ans);
+                              //  System.out.println(ans);
                                 
                             }
                             //else if naay coefficient

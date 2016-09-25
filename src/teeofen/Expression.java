@@ -31,39 +31,53 @@ public class Expression {
                 terms.add("0");
             }
             else if(exp.contains("+")){
-                ArrayList a = new ArrayList();
-                StringTokenizer s = new StringTokenizer(exp, "+");
-                while(s.hasMoreElements()){
-                   a.add(s.nextElement());
+                if(exp.contains("log")){
+                    System.out.println("here");
                 }
-                for(int i=0;i<a.size();i++){
-                   terms.add(a.get(i));
-                } 
-                
-                if(exp.contains("/")){
-                    String denom = exp.substring(exp.indexOf("/")+1,exp.length());
-                    for(int i=0; i<terms.size()-1; i++){
-                       String tmp =   String.valueOf(terms.get(i)).concat("/" + denom);
-                       terms.set(i, tmp);
+                else {
+                    ArrayList a = new ArrayList();
+                    StringTokenizer s = new StringTokenizer(exp, "+");
+                    while(s.hasMoreElements()){
+                       a.add(s.nextElement());
+                    }
+                    for(int i=0;i<a.size();i++){
+                       terms.add(a.get(i));
+                    } 
+
+                    if(exp.contains("/")){
+                        String denom = exp.substring(exp.indexOf("/")+1,exp.length());
+                        for(int i=0; i<terms.size()-1; i++){
+                           String tmp =   String.valueOf(terms.get(i)).concat("/" + denom);
+                           terms.set(i, tmp);
+                        }
                     }
                 }
+            
             }
             else if(exp.contains("-")){
-                ArrayList a = new ArrayList();
-                StringTokenizer s = new StringTokenizer(exp, "-");
-                while(s.hasMoreElements()){
-                   a.add(s.nextElement());
+                if(exp.contains("log")){
+                    //CHECK THIS FOR "log2 n-3" EXAMPLESSSS
+                    terms.add(exp);
+                    terms.add("0"); 
                 }
-                for(int i=0;i<a.size();i++){
-                   terms.add(a.get(i));
-                } 
-                if(exp.contains("/")){
-                    String denom = exp.substring(exp.indexOf("/")+1,exp.length());
-                    for(int i=0; i<terms.size()-1; i++){
-                       String tmp =   String.valueOf(terms.get(i)).concat("/" + denom);
-                       terms.set(i, tmp);
+                else{
+                    ArrayList a = new ArrayList();
+                    StringTokenizer s = new StringTokenizer(exp, "-");
+                    while(s.hasMoreElements()){
+                       a.add(s.nextElement());
                     }
-                }
+                    for(int i=0;i<a.size();i++){
+                       terms.add(a.get(i));
+                    } 
+                    if(exp.contains("/")){
+                        String denom = exp.substring(exp.indexOf("/")+1,exp.length());
+                        for(int i=0; i<terms.size()-1; i++){
+                           String tmp =   String.valueOf(terms.get(i)).concat("/" + denom);
+                           terms.set(i, tmp);
+                        }
+                    }
+                }    
+                
             }
             else {
                 ArrayList a = new ArrayList();
@@ -107,11 +121,15 @@ public class Expression {
                 else 
                     if(i > 1){
                        // System.out.print(tmp.get(i) + "^" + i + " ");
-                        System.out.println(tmp.get(i));
+                       // System.out.println(tmp.get(i));
                        tmp2.add(tmp.get(i) + "^" + i + " ");
                     }
                     else{
-                        tmp2.add(tmp.get(i) + " ");
+                        if(i==1 && !String.valueOf(tmp.get(i)).contains("log") && tmp.size()>2){
+                              tmp2.add("+ " + tmp.get(i) + " ");
+                        }
+                        else
+                            tmp2.add(tmp.get(i) + " ");
                        // System.out.print(tmp.get(i) + " ");
                     }
             }
@@ -343,6 +361,15 @@ public class Expression {
                                     var = String.valueOf(num/denominator) +  String.valueOf(op2).replaceAll("[^a-zA-Z.]","");
                                     ans = (Object) var;
                                 }
+                                else if(findGCD(num,denominator) > 1){
+                                    int gcd = findGCD(num,denominator);
+                                    
+                                    int num1 = num/gcd;
+                                    int num2 = denominator/gcd;
+                                    
+                                    ans = String.valueOf(num1) + "n" +"/" + String.valueOf(num2);
+                                            
+                                }
                                 //5 n/3
                                 else{
                                     var = num + String.valueOf(op2).replaceAll("[^a-zA-Z.]","") + "/" + denom;
@@ -442,7 +469,20 @@ public class Expression {
     private void distribute(Expression expression, Expression e2) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    private int findGCD(Integer number1, Integer number2) {
+        //base case
+        if(number2 == 0){
+            return number1;
+        }
+        return findGCD(number2, number1%number2);
+    }
+
+
+
+
 }
+
 
 // multiplyExpressions /
 // nested

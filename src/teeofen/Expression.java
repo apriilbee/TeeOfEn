@@ -6,7 +6,6 @@
 package teeofen;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
@@ -27,9 +26,37 @@ public class Expression {
             terms.add(exp);
         }
         else{
-            if(!exp.contains("^") && !exp.contains("log")){
+            if(!exp.contains("^") && !exp.contains("log") && !exp.contains("+") && !exp.contains("-")){
                 terms.add(exp);
                 terms.add("0");
+            }
+            else if(exp.contains("+")){
+                ArrayList a = new ArrayList();
+                StringTokenizer s = new StringTokenizer(exp, "+");
+                while(s.hasMoreElements()){
+                   a.add(s.nextElement());
+                }
+                for(int i=0;i<a.size();i++){
+                   terms.add(a.get(i));
+                } 
+                
+                if(exp.contains("/")){
+                    String denom = exp.substring(exp.indexOf("/")+1,exp.length());
+                    for(int i=0; i<terms.size()-1; i++){
+                       String tmp =   String.valueOf(terms.get(i)).concat("/" + denom);
+                       terms.set(i, tmp);
+                    }
+                }
+            }
+            else if(exp.contains("-")){
+                ArrayList a = new ArrayList();
+                StringTokenizer s = new StringTokenizer(exp, "-");
+                while(s.hasMoreElements()){
+                   a.add(s.nextElement());
+                }
+                for(int i=0;i<a.size();i++){
+                   terms.add(a.get(i));
+                } 
             }
             else {
                 ArrayList a = new ArrayList();
@@ -268,9 +295,11 @@ public class Expression {
                             ans = (Object)var;
                           }
                           else{
-                            String var = String.valueOf(op2) + " ";
-                            var = var.concat(String.valueOf(op1));
-                            ans = (Object)var;
+                           
+                                String var = String.valueOf(op2) + " ";
+                                var = var.concat(String.valueOf(op1));
+                                ans = (Object)var;
+                            
                           }
                         }
                     }
@@ -290,6 +319,43 @@ public class Expression {
                             String var = String.valueOf(tmp_i);
                             var = var.concat(s);
                             ans = (Object)var;
+                          }
+                          else if(String.valueOf(op2).contains("/")){
+                            //handle gcf and stuff here
+                            //6 * n/3 AND 6*(n+1)/3 AND     6*(n+1)/4 -> mao ni i-gcf
+                            String var = "";
+                            String numerator = String.valueOf(op2).substring(0,String.valueOf(op2).indexOf("/"));
+                            String denom = String.valueOf(op2).substring(String.valueOf(op2).indexOf("/")+1,String.valueOf(op2).length());
+                            Integer num = Integer.valueOf(String.valueOf(op1));
+                            Integer denominator = Integer.valueOf(denom);
+                            
+                            //if variable ra
+                            if(numerator.matches("[a-zA-Z]")){
+                                //6 n/3
+                                if(num%denominator == 0){
+                                    var = String.valueOf(num/denominator) +  String.valueOf(op2).replaceAll("[^a-zA-Z.]","");
+                                    ans = (Object) var;
+                                }
+                                //5 n/3
+                                else{
+                                    var = num + String.valueOf(op2).replaceAll("[^a-zA-Z.]","") + "/" + denom;
+                                    ans = (Object) var;
+                                }
+                            }
+                            else if(numerator.matches("[0-9]")){
+                                Integer mult = Integer.valueOf(num) * Integer.valueOf(numerator);
+                                if(mult%denominator!=0)
+                                    ans = (Object) mult + "/" + denom;
+                                else
+                                    ans = mult/denominator;
+                                System.out.println(ans);
+                                
+                            }
+                            //else if naay coefficient
+                            else{
+                              
+                            }
+                            
                           }
                           else{
                             String var = String.valueOf(op1) + " ";
@@ -364,6 +430,10 @@ public class Expression {
           return false;  
         }  
         return true;  
+    }
+
+    private void distribute(Expression expression, Expression e2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
 

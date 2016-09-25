@@ -114,9 +114,9 @@ public class Summation {
         // units(upperbound - lowerbound + 1) + constant
         System.out.print("T(n) = ");
        x.addExpressions(con, x.multiplyExpressions(un, x.addExpressions(x.subtractExpressions(ub, lb),one))).display();
-//        Expression t1 = new Expression("n");
-//        Expression t2 = new Expression("2n");
-//        x.multiplyExpressions(t1, t2).display();
+        Expression t1 = new Expression("6");
+        Expression t2 = new Expression("n+1/3");
+      //  x.multiplyExpressions(t1, t2).display();
     }
     
     public void print(){

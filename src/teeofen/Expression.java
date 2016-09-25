@@ -32,7 +32,14 @@ public class Expression {
             }
             else if(exp.contains("+")){
                 if(exp.contains("log")){
-                    System.out.println("here");
+                    //check this for log n+2
+                    if(exp.contains("+")){
+                        terms.add(exp.substring(0, exp.indexOf("+")));
+                    }
+                    else{
+                        terms.add(exp);
+                    }
+                    terms.add("0");
                 }
                 else {
                     ArrayList a = new ArrayList();
@@ -57,7 +64,11 @@ public class Expression {
             else if(exp.contains("-")){
                 if(exp.contains("log")){
                     //CHECK THIS FOR "log2 n-3" EXAMPLESSSS
-                    terms.add(exp);
+                    //terms.add(exp);
+                     if(exp.contains("-")){
+                        // System.out.println(exp.substring(0, exp.indexOf("-")));
+                        terms.add(exp.substring(0, exp.indexOf("-")));
+                    }
                     terms.add("0"); 
                 }
                 else{
@@ -387,7 +398,7 @@ public class Expression {
                             }
                             //else if naay coefficient
                             else{
-                              
+                               
                             }
                             
                           }

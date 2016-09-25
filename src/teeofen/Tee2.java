@@ -90,7 +90,7 @@ public class Tee2 {
                     }
                 }
                 s = new StringTokenizer(sb.toString(), "(;) ");
-                System.out.println("sb:" + sb);
+                System.out.println("Loop: " + sb);
 
             }
             
@@ -169,13 +169,21 @@ public class Tee2 {
             reverse = true;
         }
         
-        //iterator - assignment
         if(tmp_lbvariable.matches("[0-9]") && iter!=""){
             if(Integer.valueOf(tmp_lbvariable) > 1){
-                int var = Integer.valueOf(iter) - Integer.valueOf(tmp_lbvariable);
-                tmp_lbvariable= "1";
-                if(var>0)
-                    tmp_ubvariable += "+" + var;
+                //System.out.println("increment" + token_array.get(increment));
+                if(String.valueOf(token_array.get(increment)).contains("+=")){
+                    //iterator - assignment to make iterator divisible by assignment (WORST CASE)
+                    int var = Integer.valueOf(iter) - Integer.valueOf(tmp_lbvariable);
+                    tmp_lbvariable= String.valueOf(var);
+                    if(var>0)
+                        tmp_ubvariable += "+" + var;
+                }
+                else if(String.valueOf(token_array.get(increment)).contains("*=")){
+                 //   System.out.println("*");
+                }
+
+
             }
         }
         
@@ -183,7 +191,7 @@ public class Tee2 {
         String lowerbound;
         
         Integer x = ConditionOperator(token_array.get(condition),reverse);
-        if(x > 0)
+        if(x > 0 && !upperbound.contains("log"))
             lowerbound = String.valueOf(Integer.valueOf(tmp_lbvariable) + x);
         else
             lowerbound = tmp_lbvariable;
